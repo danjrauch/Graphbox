@@ -36,6 +36,11 @@ interface IAdjacencyList
     [id: number]: number[];
 }
 
+interface IAdjacencyMatrix
+{
+    [id: number]: number[];
+}
+
 interface IGraph<T, S>
 {
     V: IVertex<T, S>[];
@@ -50,7 +55,7 @@ interface IGraph<T, S>
 
 class Graph<T, S> implements IGraph<T, S>
 {
-    private _vid: number = 1;
+    private _vid: number = 0;
     private _eid: number = -1;
 
     private _V: IVertex<T, S>[];
@@ -72,6 +77,7 @@ class Graph<T, S> implements IGraph<T, S>
     }
 
     private _adjacencyList: IAdjacencyList = [] as IAdjacencyList;
+    private _adjacencyMatrix: IAdjacencyMatrix = [] as IAdjacencyMatrix;
 
     public constructor();
     public constructor(edgeType: EdgeType);
@@ -114,6 +120,33 @@ class Graph<T, S> implements IGraph<T, S>
             )
             {
                 this._adjacencyList[destId].push(srcId);
+            }
+        });
+    }
+
+    private constructAdjacencyMatrix(): void
+    {
+        this._adjacencyMatrix = this._V.reduce((prev, curr) =>
+        {
+            prev[curr.id!] = [];
+            for (let i = 0; i < this._V.length; ++i)
+            {
+                prev[curr.id!].push(0);
+            } 
+            return prev;
+        }, [] as IAdjacencyMatrix);
+
+        this._E.forEach((e) =>
+        {
+            const srcId = this._V.filter((v) => v.label === e.src)[0].id!;
+            const destId = this._V.filter((v) => v.label === e.dest)[0].id!;
+
+            this._adjacencyMatrix[srcId][destId] = 1;
+            if (
+                this._edgeType === EdgeType.Undirected
+            )
+            {
+                this._adjacencyMatrix[destId][srcId] = 1;
             }
         });
     }
