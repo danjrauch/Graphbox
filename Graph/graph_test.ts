@@ -1,4 +1,5 @@
 import { Graph, EdgeType } from "./graph.ts";
+import { BFS } from "./../Algorithm/BFS.ts";
 import {
   assertEquals,
   assertArrayContains,
@@ -14,7 +15,7 @@ function randomString(length: number): string {
   }, "").substring(0, length);
 }
 
-Deno.test("g.add | add a simple vertex to graph", () => {
+Deno.test("GRA | g.add | add a simple vertex to graph", () => {
   const g: Graph<string, string> = new Graph<string, string>(
     EdgeType.Undirected,
   );
@@ -25,7 +26,7 @@ Deno.test("g.add | add a simple vertex to graph", () => {
   assertEquals(g.V, [{ id: 0, label: "A", value: "Dan" }]);
 });
 
-Deno.test("g.removeVertex | remove a simple vertex from graph", () => {
+Deno.test("GRA | g.removeVertex | remove a simple vertex from graph", () => {
   const g: Graph<string, string> = new Graph<string, string>(
     EdgeType.Undirected,
   );
@@ -38,7 +39,7 @@ Deno.test("g.removeVertex | remove a simple vertex from graph", () => {
   assertEquals(g.V, []);
 });
 
-Deno.test("g.removeVerticies | remove a few simple verticies from graph", () => {
+Deno.test("GRA | g.removeVerticies | remove a few simple verticies from graph", () => {
   const g: Graph<string, number> = new Graph<string, number>(
     EdgeType.Undirected,
   );
@@ -58,7 +59,7 @@ Deno.test("g.removeVerticies | remove a few simple verticies from graph", () => 
   assertEquals(g.V, []);
 });
 
-Deno.test("g.removeEdge | remove a simple edge from graph", () => {
+Deno.test("GRA | g.removeEdge | remove a simple edge from graph", () => {
   const g: Graph<string, number> = new Graph<string, number>(
     EdgeType.Undirected,
   );
@@ -89,7 +90,7 @@ Deno.test("g.removeEdge | remove a simple edge from graph", () => {
   assertEquals(g.E, []);
 });
 
-Deno.test("g.add | add many simple verticies to graph", () => {
+Deno.test("GRA | g.add | add many simple verticies to graph", () => {
   const g: Graph<string, number> = new Graph<string, number>(
     EdgeType.Undirected,
   );
@@ -101,4 +102,31 @@ Deno.test("g.add | add many simple verticies to graph", () => {
     });
   }
   assertEquals(g.V.length, VSIZE);
+});
+
+Deno.test("ALG | BFS | simple BFS search", () => {
+  const g: Graph<string, number> = new Graph<string, number>(
+    EdgeType.Undirected,
+  );
+  g.add({
+    label: "A",
+    value: 0,
+  });
+  g.add({
+    label: "B",
+    value: 0,
+  });
+  g.add({
+    label: "C",
+    value: 0,
+  });
+  g.add({
+    src: "A",
+    dest: "B",
+  });
+  g.add({
+    src: "B",
+    dest: "C",
+  });
+  assertEquals(BFS(g, "A", "C"), true);
 });
