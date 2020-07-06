@@ -1,19 +1,10 @@
-import { Graph, EdgeType } from "./graph.ts";
+import { Graph, EdgeType } from "./../Graph/graph.ts";
 import { BFS } from "./../Algorithm/BFS.ts";
+import { randomString } from "./../Utilities/util.ts";
 import {
   assertEquals,
   assertArrayContains,
 } from "https://deno.land/std/testing/asserts.ts";
-
-function randomString(length: number): string {
-  let radom13chars = function () {
-    return Math.random().toString(16).substring(2, 15);
-  };
-  let loops = Math.ceil(length / 13);
-  return new Array(loops).fill(radom13chars).reduce((string, func) => {
-    return string + func();
-  }, "").substring(0, length);
-}
 
 Deno.test("GRA | g.add | add a simple vertex to graph", () => {
   const g: Graph<string, string> = new Graph<string, string>(
@@ -88,20 +79,6 @@ Deno.test("GRA | g.removeEdge | remove a simple edge from graph", () => {
     dest: "B",
   });
   assertEquals(g.E, []);
-});
-
-Deno.test("GRA | g.add | add many simple verticies to graph", () => {
-  const g: Graph<string, number> = new Graph<string, number>(
-    EdgeType.Undirected,
-  );
-  const VSIZE = 10000;
-  for (let i = 0; i < VSIZE; ++i) {
-    g.add({
-      label: randomString(30),
-      value: 0,
-    });
-  }
-  assertEquals(g.V.length, VSIZE);
 });
 
 Deno.test("ALG | BFS | simple BFS search", () => {

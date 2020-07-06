@@ -97,6 +97,8 @@ class Graph<TLabel, TValue> implements IGraph<TLabel, TValue> {
     this.constructAdjacencyMatrix();
     this._eventEmitter.on("vertexAdded", this.vertexAddedHandler);
     this._eventEmitter.on("vertexRemoved", this.vertexRemovedHandler);
+    this._eventEmitter.on("edgeAdded", this.edgeAddedHandler);
+    this._eventEmitter.on("edgeRemoved", this.edgeRemovedHandler);
   }
 
   private vertexAddedHandler = (vertex: IVertex<TLabel, TValue>) => {
@@ -109,6 +111,12 @@ class Graph<TLabel, TValue> implements IGraph<TLabel, TValue> {
     this._VLabelIndex.delete(vertex.label);
     delete this._VIndex[vertex.id!];
     this._stale = true;
+  };
+
+  private edgeAddedHandler = (edge: IEdge<TLabel>) => {
+  };
+
+  private edgeRemovedHandler = (edge: IEdge<TLabel>) => {
   };
 
   public add(element: IVertex<TLabel, TValue>): void;
@@ -127,27 +135,27 @@ class Graph<TLabel, TValue> implements IGraph<TLabel, TValue> {
       ) {
         element.id = this._eid--;
         this._E.push(element);
+        this._eventEmitter.emit("edgeAdded", element);
       }
     }
   }
 
   public removeVertex(label: TLabel): void {
     if (this._VLabelIndex.has(label)) {
-      const vertexToRemove = this._V.filter((v) => v.label === label)[0];
-      this._V = this._V.filter((v) => v.label !== label);
-      this._eventEmitter.emit("vertexRemoved", vertexToRemove);
+      for (const [idx, vertex] of this._V.entries()) {
+        if (vertex.label === label) {
+          this._V.splice(idx, 1);
+          this._eventEmitter.emit("vertexRemoved", vertex);
+          break;
+        }
+      }
     }
   }
 
   public removeVerticies(value: TValue): void {
-    const verticiesToRemove = this._V.filter((v) => v.value === value);
-    const labelsToRemove: Set<TLabel> = new Set<TLabel>(
-      verticiesToRemove.map((v) => v.label),
-    );
-    this._V = this._V.filter((v) => !labelsToRemove.has(v.label));
-    verticiesToRemove.forEach((vertex) => {
-      this._eventEmitter.emit("vertexRemoved", vertex);
-    });
+    const removed = this.V.filter((v) => v.value === value);
+    this._V = this._V.filter((v) => v.value !== value);
+    removed.forEach((v) => this._eventEmitter.emit("vertexRemoved", v));
   }
 
   public removeEdge(edge: IEdge<TLabel>): void {
@@ -161,6 +169,7 @@ class Graph<TLabel, TValue> implements IGraph<TLabel, TValue> {
         e.dest !== edge.dest || e.src !== edge.src
       );
     }
+    this._eventEmitter.emit("edgeRemoved", edge);
   }
 
   public adjacent(label: TLabel): IVertex<TLabel, TValue>[] {

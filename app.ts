@@ -1,2 +1,1 @@
-import { Graph, EdgeType } from './Graph/graph.ts';
-
+import { Graph, EdgeType } from "./Graph/graph.ts";
