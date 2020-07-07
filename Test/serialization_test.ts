@@ -7,7 +7,7 @@ import {
   assertArrayContains,
 } from "https://deno.land/std/testing/asserts.ts";
 
-Deno.test("SER | save+load | round-trip serialization", () => {
+Deno.test("SER | save+load | round-trip JSON serialization", () => {
   fs.ensureDirSync("./Temp/");
   const g: Graph<string, number> = new Graph<string, number>(
     EdgeType.Undirected,

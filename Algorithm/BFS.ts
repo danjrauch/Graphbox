@@ -22,4 +22,4 @@ function BFS<TLabel, TValue>(
   return false;
 }
 
-export { BFS };
+export default BFS;

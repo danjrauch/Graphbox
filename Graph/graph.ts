@@ -1,14 +1,14 @@
 import EventEmitter from "https://deno.land/x/events/mod.ts";
 
 enum EdgeType {
-  Undirected,
-  Directed,
+  Undirected = "Undirected",
+  Directed = "Directed",
 }
 
 interface IVertex<TLabel, TValue> {
   id?: number;
   label: TLabel;
-  value: TValue;
+  value?: TValue;
 }
 
 interface IEdge<TLabel> {
@@ -21,8 +21,7 @@ interface IEdge<TLabel> {
 function isVertex<TLabel, TValue>(
   element: IVertex<TLabel, TValue> | IEdge<TLabel>,
 ): element is IVertex<TLabel, TValue> {
-  return (<IVertex<TLabel, TValue>> element).label !== undefined &&
-    (<IVertex<TLabel, TValue>> element).value !== undefined;
+  return (<IVertex<TLabel, TValue>> element).label !== undefined;
 }
 
 function isEdge<TLabel, TValue>(
@@ -57,7 +56,7 @@ class Graph<TLabel, TValue> implements IGraph<TLabel, TValue> {
   private _vid: number = 0;
   private _eid: number = -1;
   private _stale: boolean = false;
-  private _VLabelIndex: Set<TLabel>;
+  private _VLabelIndex: Set<TLabel> = new Set<TLabel>();
   private _VIndex: { [id: number]: IVertex<TLabel, TValue> } = [];
   private _adjacencyList: IAdjacencyList = [] as IAdjacencyList;
   private _adjacencyMatrix: IAdjacencyMatrix = [] as IAdjacencyMatrix;
@@ -90,16 +89,21 @@ class Graph<TLabel, TValue> implements IGraph<TLabel, TValue> {
     V: IVertex<TLabel, TValue>[] = [],
     E: IEdge<TLabel>[] = [],
   ) {
-    this._V = V;
-    this._E = E;
-    this._edgeType = edgeType;
-    this._VLabelIndex = new Set(this._V.map((v) => v.label));
-    this.constructAdjacencyList();
-    this.constructAdjacencyMatrix();
     this._eventEmitter.on("vertexAdded", this.vertexAddedHandler);
     this._eventEmitter.on("vertexRemoved", this.vertexRemovedHandler);
     this._eventEmitter.on("edgeAdded", this.edgeAddedHandler);
     this._eventEmitter.on("edgeRemoved", this.edgeRemovedHandler);
+    this._V = [];
+    this._E = [];
+    for (const vertex of V) {
+      this.add(vertex);
+    }
+    for (const edge of E) {
+      this.add(edge);
+    }
+    this._edgeType = edgeType;
+    this.constructAdjacencyList();
+    this.constructAdjacencyMatrix();
   }
 
   private vertexAddedHandler = (vertex: IVertex<TLabel, TValue>) => {

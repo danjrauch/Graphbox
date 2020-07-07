@@ -1,5 +1,5 @@
 import { Graph, EdgeType } from "./../Graph/graph.ts";
-import { BFS } from "./../Algorithm/BFS.ts";
+import BFS from "./../Algorithm/BFS.ts";
 import { randomString } from "./../Utilities/util.ts";
 import {
   assertEquals,
