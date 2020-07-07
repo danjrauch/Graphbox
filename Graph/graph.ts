@@ -50,6 +50,7 @@ interface IGraph<TLabel, TValue> {
   removeVerticies(value: TValue): void;
   removeEdge(edge: IEdge<TLabel>): void;
   adjacent(label: TLabel): IVertex<TLabel, TValue>[];
+  equals(other: IGraph<TLabel, TValue>): boolean;
 }
 
 class Graph<TLabel, TValue> implements IGraph<TLabel, TValue> {
@@ -118,6 +119,58 @@ class Graph<TLabel, TValue> implements IGraph<TLabel, TValue> {
 
   private edgeRemovedHandler = (edge: IEdge<TLabel>) => {
   };
+
+  public equals(other: Graph<TLabel, TValue>) {
+    if (
+      (this._V.length !== other._V.length) ||
+      (this._E.length !== other._E.length) ||
+      this.EdgeType !== other.EdgeType
+    ) {
+      return false;
+    }
+    this._V.sort((a, b) => a.label < b.label ? -1 : a.label > b.label ? 1 : 0);
+    other._V.sort((a, b) => a.label < b.label ? -1 : a.label > b.label ? 1 : 0);
+
+    for (let i = 0; i < this._V.length; ++i) {
+      if (this._V[i].value !== other._V[i].value) {
+        return false;
+      }
+    }
+
+    this._E.sort((a, b) =>
+      a.src < b.src
+        ? -1
+        : a.src > b.src
+        ? 1
+        : a.dest < b.dest
+        ? -1
+        : a.dest > b.dest
+        ? 1
+        : 0
+    );
+    other._E.sort((a, b) =>
+      a.src < b.src
+        ? -1
+        : a.src > b.src
+        ? 1
+        : a.dest < b.dest
+        ? -1
+        : a.dest > b.dest
+        ? 1
+        : 0
+    );
+
+    for (let i = 0; i < this._E.length; ++i) {
+      if (
+        (this._E[i].src !== other._E[i].src) ||
+        (this._E[i].dest !== other._E[i].dest)
+      ) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 
   public add(element: IVertex<TLabel, TValue>): void;
   public add(element: IEdge<TLabel>): void;
