@@ -3,19 +3,24 @@ import * as Serialize from "./../Serialization/serialize.ts";
 import {
   runBenchmarks,
   bench,
-  BenchmarkRunProgress,
-  ProgressState,
 } from "https://deno.land/std/testing/bench.ts";
+import {
+  assertEquals,
+} from "https://deno.land/std/testing/asserts.ts";
 import * as log from "https://deno.land/std/log/mod.ts";
 
 bench(function roundTripSmallGraph(b): void {
   const graphName = "soc-sign-bitcoinalpha";
 
-  const g: Graph<number, number> = Serialize.load(
+  const g: Graph<number, number> = Serialize.construct(
     `./Data/${graphName}.csv`,
     Serialize.StorageFormat.CSV,
-    EdgeType.Directed,
-  );
+    {
+      edgeType: EdgeType.Directed,
+      labelType: Serialize.TypeHint.number,
+      valueType: Serialize.TypeHint.number,
+    },
+  ) as Graph<number, number>;
 
   log.info(`${graphName} has ${g.V.length} verticies.`);
   log.info(`${graphName} has ${g.E.length} edges.`);
@@ -28,6 +33,7 @@ bench(function roundTripSmallGraph(b): void {
     Serialize.StorageFormat.JSON,
   );
   b.stop();
+  assertEquals(g.equals(g2), true);
 });
 
 runBenchmarks();

@@ -6,9 +6,16 @@ enum StorageFormat {
   CSV,
 }
 
-type StorageArgs = {
-  edgeType?: EdgeType;
-};
+enum TypeHint {
+  number,
+  string,
+}
+
+interface StorageArgs {
+  edgeType: EdgeType;
+  labelType: TypeHint;
+  valueType: TypeHint;
+}
 
 type SimpleGraph<TLabel, TValue> = {
   "V": IVertex<TLabel, TValue>[];
@@ -19,7 +26,11 @@ type SimpleGraph<TLabel, TValue> = {
 function load<TLabel, TValue>(
   fileName: string,
   storageFormat: StorageFormat,
-  edgeType: EdgeType = EdgeType.Undirected,
+  args: StorageArgs = {
+    edgeType: EdgeType.Undirected,
+    labelType: TypeHint.string,
+    valueType: TypeHint.string,
+  },
 ): Graph<TLabel, TValue> {
   if (!fs.existsSync(fileName)) {
     throw new Deno.errors.NotFound(`${fileName} not found`);
@@ -34,23 +45,53 @@ function load<TLabel, TValue>(
       break;
     }
     case StorageFormat.CSV: {
-      jsonContent = { V: [], E: [], EdgeType: edgeType };
+      throw new Deno.errors.NotFound(
+        "CSV files cannot be directly loaded into a graph. Use the import function instead.",
+      );
+      break;
+    }
+  }
+  return new Graph(jsonContent.EdgeType, jsonContent.V, jsonContent.E);
+}
+
+function construct(
+  fileName: string,
+  storageFormat: StorageFormat,
+  args: StorageArgs = {
+    edgeType: EdgeType.Undirected,
+    labelType: TypeHint.string,
+    valueType: TypeHint.string,
+  },
+): Graph<number | string, number | string> {
+  let jsonContent: SimpleGraph<number | string, number | string> = {
+    V: [],
+    E: [],
+    EdgeType: args.edgeType,
+  };
+  switch (storageFormat) {
+    case StorageFormat.CSV: {
       for (
         const line of fs.readFileStrSync(fileName, { encoding: "utf-8" }).split(
           "\n",
         )
       ) {
         const props = line.split(",");
-        // TODO Fix string to TLabel type conversion
-        const srcLabel: TLabel = props[0] as any;
-        console.log(typeof srcLabel);
-        const destLabel: TLabel = props[1] as unknown as TLabel;
+        if (
+          props.length < 3 || props.filter((e) => e.trim() === "").length > 0
+        ) {
+          continue;
+        }
+        const srcLabel: number | string = args.labelType === TypeHint.string
+          ? props[0]
+          : Number(props[0]);
+        const destLabel: number | string = args.valueType === TypeHint.string
+          ? props[1]
+          : Number(props[1]);
         jsonContent.V.push({ label: srcLabel }, { label: destLabel });
         jsonContent.E.push(
           { src: srcLabel, dest: destLabel, weight: Number(props[2]) },
         );
       }
-      break;
     }
   }
   return new Graph(jsonContent.EdgeType, jsonContent.V, jsonContent.E);
@@ -80,4 +121,4 @@ function save<TLabel, TValue>(
   }
 }
 
-export { StorageFormat, load, save };
+export { StorageFormat, TypeHint, load, save, construct };

@@ -4,7 +4,6 @@ import { randomString } from "./../Utilities/util.ts";
 import * as fs from "https://deno.land/std/fs/mod.ts";
 import {
   assertEquals,
-  assertArrayContains,
 } from "https://deno.land/std/testing/asserts.ts";
 
 Deno.test("SER | save+load | round-trip JSON serialization", () => {

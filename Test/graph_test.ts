@@ -3,7 +3,6 @@ import BFS from "./../Algorithm/BFS.ts";
 import { randomString } from "./../Utilities/util.ts";
 import {
   assertEquals,
-  assertArrayContains,
 } from "https://deno.land/std/testing/asserts.ts";
 
 Deno.test("GRA | g.add | add a simple vertex to graph", () => {
